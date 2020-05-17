@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+
+<GridPane alignment="center" hgap="10" vgap="10" xmlns:fx="http://javafx.com/fxml/1"
+          xmlns="http://javafx.com/javafx/11.0.1" fx:controller="client.Controller">
+   <columnConstraints>
+      <ColumnConstraints/>
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints/>
+   </rowConstraints>
+   <children>
+      <VBox prefHeight="245.0" prefWidth="393.0">
+         <children>
+            <AnchorPane prefHeight="246.0" prefWidth="393.0">
+               <children>
+                  <TextField layoutX="111.0" layoutY="50.0" promptText="Login"/>
+                  <TextField layoutX="111.0" layoutY="97.0" promptText="Folder path"/>
+                  <Button layoutX="165.0" layoutY="170.0" mnemonicParsing="false" text="Sign in"/>
+               </children>
+            </AnchorPane>
+         </children>
+      </VBox>
+   </children>
+</GridPane>
