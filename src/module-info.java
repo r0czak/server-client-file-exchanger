@@ -4,4 +4,5 @@ module projekt_po2 {
     requires javafx.fxml;
 
     opens client;
+    opens client.controllers;
 }

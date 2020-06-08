@@ -2,6 +2,7 @@ package server;
 
 import java.io.*;
 import java.net.*;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalTime;
 
@@ -9,6 +10,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.shape.Path;
 import javafx.stage.Stage;
 
 public class Server {
@@ -16,7 +18,7 @@ public class Server {
   /*
   @Override
   public void start(Stage primaryStage) throws Exception {
-    Parent root = FXMLLoader.load(getClass().getResource("server.fxml"));
+    Parent root = FXMLLoader.load(getClass().getResource("mainScreenServer.fxml"));
     primaryStage.setTitle("Hello World");
     primaryStage.setScene(new Scene(root, 300, 275));
     primaryStage.show();
@@ -66,6 +68,7 @@ public class Server {
 
         ClientInfo Client1 = new ClientInfo();
         Client1.client_name = in.readLine();
+        Client1.folder_path = Paths.get(in.readLine());
         System.out.println(Client1.client_name + " joined server");
 
         in.close();
