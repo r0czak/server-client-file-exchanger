@@ -27,13 +27,6 @@ public class LoginController {
 
   @FXML
   public void signIn() {
-    FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/resources/AppScreen.fxml"));
-    SplitPane appPane = null;
-    try {
-      appPane = loader.load();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
 
     if (getUsername().isEmpty()) {
       System.out.println("No username");
@@ -44,6 +37,18 @@ public class LoginController {
       System.out.println("Wrong filepath");
       return;
     }
+
+    FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/resources/AppScreen.fxml"));
+    SplitPane appPane = null;
+    try {
+      appPane = loader.load();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    AppController appController = loader.getController();
+    appController.setFolderPath(path);
+    appController.main();
 
     ClientSocket client = new ClientSocket();
 
