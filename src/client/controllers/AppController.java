@@ -24,7 +24,7 @@ public class AppController {
                         try {
                           Thread.sleep(1000);
                         } catch (InterruptedException e) {
-                          System.out.println("kurwa");
+                          e.printStackTrace();
                           break;
                         }
                       }

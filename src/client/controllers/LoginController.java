@@ -1,7 +1,6 @@
 package client.controllers;
 
-import client.Client;
-import client.ClientSocket;
+import client.SocketClient;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.SplitPane;
@@ -13,17 +12,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class LoginController {
-  private MainController mainController;
-  private ClientSocket clientSocket;
+    private MainServerController mainServerController;
+    private SocketClient socketClient;
 
-  @FXML
-  private TextField username, folderPath;
+    @FXML
+    private TextField username, folderPath;
 
-  @FXML
-  protected void initialize() {
-    setTextLimit(username, 16);
-    setTextLimit(folderPath, 100);
-  }
+    @FXML
+    protected void initialize() {
+        setTextLimit(username, 16);
+        setTextLimit(folderPath, 100);
+    }
 
   @FXML
   public void signIn() {
@@ -50,26 +49,26 @@ public class LoginController {
     appController.setFolderPath(path);
     appController.main();
 
-    ClientSocket client = new ClientSocket();
+      SocketClient client = new SocketClient();
 
-    client.startConnection("127.0.0.1", 6666);
-    client.out.println(getUsername());
-    client.out.println(getFolderPath());
+      client.startConnection("127.0.0.1", 6666);
+      client.out.println(getUsername());
+      client.out.println(getFolderPath());
 
-    mainController.setScreen(appPane);
+      mainServerController.setScreen(appPane);
   }
 
-  public void setMainController(MainController mainController) {
-    this.mainController = mainController;
-  }
+    public void setMainServerController(MainServerController mainServerController) {
+        this.mainServerController = mainServerController;
+    }
 
-  public String getUsername() {
-    return username.getText();
-  }
+    public String getUsername() {
+        return username.getText();
+    }
 
-  public String getFolderPath() {
-    return folderPath.getText();
-  }
+    public String getFolderPath() {
+        return folderPath.getText();
+    }
 
   public static void setTextLimit(TextField textField, int length) {
     textField.setOnKeyTyped(

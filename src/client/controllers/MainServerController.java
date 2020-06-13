@@ -8,22 +8,22 @@ import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
 
-public class MainController {
-  @FXML
-  private StackPane mainStackPane;
+public class MainServerController {
+    @FXML
+    private StackPane mainStackPane;
 
-  @FXML
-  public void initialize() {
-    FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/resources/loginPane.fxml"));
-    Pane loginPane = null;
-    try {
-      loginPane = loader.load();
-    } catch (IOException e) {
+    @FXML
+    public void initialize() {
+        FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/resources/loginPane.fxml"));
+        Pane loginPane = null;
+        try {
+            loginPane = loader.load();
+        } catch (IOException e) {
       e.printStackTrace();
     }
     LoginController loginController = loader.getController();
-    loginController.setMainController(this);
-    setScreen(loginPane);
+        loginController.setMainServerController(this);
+        setScreen(loginPane);
   }
 
   public void setScreen(Pane pane) {
