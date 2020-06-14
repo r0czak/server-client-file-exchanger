@@ -1,6 +1,5 @@
 package server.controllers;
 
-
 import javafx.fxml.FXML;
 import server.SocketServer;
 
@@ -13,6 +12,4 @@ public class MainServerController extends Thread {
     Thread serverThread = new Thread(server);
     serverThread.start();
   }
-
-
 }

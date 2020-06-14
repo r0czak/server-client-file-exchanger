@@ -5,7 +5,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Accordion;
 import javafx.stage.Stage;
-import server.controllers.MainServerController;
 
 public class Server extends Application {
 

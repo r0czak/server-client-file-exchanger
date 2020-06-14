@@ -1,8 +1,6 @@
 package client;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 
 public class SocketClient {
@@ -11,35 +9,45 @@ public class SocketClient {
   // Socket client application
 
   private Socket clientSocket;
-  public PrintWriter out;
-  public BufferedReader in;
+  public ObjectOutputStream ObjectOut;
+  public ObjectInputStream ObjectIn;
 
   public void startConnection(String host_name, int port) {
     try {
       clientSocket = new Socket(host_name, port);
-      out = new PrintWriter(clientSocket.getOutputStream(), true);
-      in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
+      ObjectOut = new ObjectOutputStream(clientSocket.getOutputStream());
+      ObjectIn = new ObjectInputStream(clientSocket.getInputStream());
+
     } catch (Exception e) {
-      System.out.println(e);
+      e.printStackTrace();
     }
   }
 
   public String sendString(String msg) {
     try {
-      out.println(msg);
+      ObjectOut.writeObject(msg);
     } catch (Exception e) {
-      System.out.println(e);
+      e.printStackTrace();
     }
     return "";
   }
 
+  public void SendMessage(Message msg) {
+    try {
+      ObjectOut.writeObject(msg);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
   public void stopConnection() {
     try {
-      in.close();
-      out.close();
+      ObjectIn.close();
+      ObjectOut.close();
       clientSocket.close();
     } catch (Exception e) {
-      System.out.println(e);
+      e.printStackTrace();
     }
   }
 }
