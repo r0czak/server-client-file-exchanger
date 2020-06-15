@@ -1,14 +1,14 @@
 package server;
 
-import client.Client;
-
+import java.io.Serializable;
 import java.nio.file.Path;
 
-public class ClientInfo {
+public class ClientInfo implements Serializable {
   public String ClientName;
-  public Path FolderPath;
+  public String FolderPath;
+  public boolean Active = false;
 
-  public ClientInfo(String ClientName, Path FolderPath) {
+  public ClientInfo(String ClientName, String FolderPath) {
     this.ClientName = ClientName;
     this.FolderPath = FolderPath;
   }
