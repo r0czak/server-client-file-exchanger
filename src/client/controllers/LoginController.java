@@ -12,7 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class LoginController {
-  private MainServerController mainServerController;
+  private MainClientController mainClientController;
   public SocketClient socketClient;
 
   @FXML
@@ -47,25 +47,26 @@ public class LoginController {
 
     AppController appController = loader.getController();
     appController.setFolderPath(path);
-    appController.main();
 
     socketClient = new SocketClient();
 
     socketClient.startConnection("127.0.0.1", 6666);
-
     socketClient.sendString(getUsername());
     socketClient.sendString(getFolderPath());
     if (!(boolean) socketClient.ObjectIn.readObject()) {
+      System.out.println("This User is active");
       return;
     }
 
     appController.setClient(socketClient);
+    appController.Update();
+    appController.FileExchange();
 
-    mainServerController.setScreen(appPane);
+    mainClientController.setScreen(appPane);
   }
 
-  public void setMainServerController(MainServerController mainServerController) {
-    this.mainServerController = mainServerController;
+  public void setMainClientController(MainClientController mainClientController) {
+    this.mainClientController = mainClientController;
   }
 
   public String getUsername() {

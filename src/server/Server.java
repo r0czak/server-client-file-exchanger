@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Accordion;
 import javafx.stage.Stage;
+import server.controllers.MainServerController;
 
 public class Server extends Application {
 
@@ -14,10 +15,14 @@ public class Server extends Application {
             new FXMLLoader(this.getClass().getResource("/resources/mainScreenServer.fxml"));
     Accordion root = loader.load();
     Scene scene = new Scene(root);
+    MainServerController controller = loader.getController();
+    controller.setStage(primaryStage);
 
     primaryStage.setTitle("Server");
     primaryStage.setScene(scene);
     primaryStage.show();
+    controller.close();
+
   }
 
   public static void main(String[] args) {

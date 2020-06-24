@@ -8,7 +8,7 @@ import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
 
-public class MainServerController {
+public class MainClientController {
     @FXML
     private StackPane mainStackPane;
 
@@ -22,7 +22,7 @@ public class MainServerController {
       e.printStackTrace();
     }
     LoginController loginController = loader.getController();
-        loginController.setMainServerController(this);
+        loginController.setMainClientController(this);
         setScreen(loginPane);
   }
 
