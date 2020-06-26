@@ -5,7 +5,9 @@ import client.Message;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -114,7 +116,6 @@ public class SocketServer extends Thread {
         e.printStackTrace();
       }
     }
-
 
     public boolean registerClient(String ClientName, String FolderPath) {
       boolean existsFlag = false;
@@ -267,7 +268,33 @@ public class SocketServer extends Thread {
         ObjectOut.reset();
         ObjectOut.writeObject(ActiveUsersList);
         return MessageHandlerReturn.CONTINUE;
+
       } else if (request.TransferFileFlag) {
+        try {
+          String fileName = (String) ObjectIn.readObject();
+          String transferClientName = (String) ObjectIn.readObject();
+          int transferClientId = 0;
+
+          for (int i : UserList.keySet()) {
+            if (UserList.get(i).ClientName.equals(transferClientName)) {
+              transferClientId = i;
+              break;
+            }
+          }
+
+          if (transferClientId == 0) return MessageHandlerReturn.CONTINUE;
+
+          File source = new File("/home/roczak/server/" + ClientId + "/" + fileName);
+          File dest = new File("/home/roczak/server/" + transferClientId + "/" + fileName);
+          System.out.println("nowyplik");
+          dest.createNewFile();
+
+          Files.copy(source.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+        } catch (ClassNotFoundException e) {
+          e.printStackTrace();
+        }
+
         return MessageHandlerReturn.CONTINUE;
       }
       return MessageHandlerReturn.CONTINUE;

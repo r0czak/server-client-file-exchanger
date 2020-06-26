@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.Pane?>
+
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="238.0"
+      prefWidth="394.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="client.controllers.TransferController">
+    <children>
+        <TextField fx:id="fileTextField" layoutX="112.0" layoutY="119.0" promptText="File"/>
+        <TextField fx:id="clientnameTextField" layoutX="112.0" layoutY="67.0" promptText="Username"/>
+        <Button fx:id="transferButton" layoutX="172.0" layoutY="180.0" mnemonicParsing="false" onAction="#transferFile"
+                text="Send"/>
+    </children>
+</Pane>

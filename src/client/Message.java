@@ -3,14 +3,11 @@ package client;
 import java.io.Serializable;
 
 public class Message implements Serializable {
-  public int TransferClientId;
-  public String Filename;
   public boolean LogoutFlag = false;
   public boolean UploadFilesFlag = false;
   public boolean DownloadFilesFlag = false;
   public boolean DownloadClientListFlag = false;
   public boolean TransferFileFlag = false;
-
 
   public synchronized void clear() {
     LogoutFlag = false;
@@ -36,9 +33,7 @@ public class Message implements Serializable {
     DownloadClientListFlag = true;
   }
 
-  public synchronized void TransferFile(int TransferClientId, String Filename) {
-    this.TransferClientId = TransferClientId;
-    this.Filename = Filename;
+  public synchronized void TransferFile() {
     TransferFileFlag = true;
   }
 }

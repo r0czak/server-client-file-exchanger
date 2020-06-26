@@ -134,4 +134,17 @@ public class SocketClient {
 
     return ActiveUsersList;
   }
+
+  public void TransferFile(Message request, String fileName, String transferClientName) {
+    request.TransferFile();
+    SendMessage(request);
+    request.clear();
+    try {
+      ObjectOut.writeObject(fileName);
+      ObjectOut.writeObject(transferClientName);
+      ObjectOut.reset();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
 }
