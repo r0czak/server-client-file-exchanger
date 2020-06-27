@@ -6,7 +6,6 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -139,6 +138,7 @@ public class SocketServer extends Thread {
       if (existsFlag) {
         UserList.get(ClientId).FolderPath = FolderPath;
         UserList.get(ClientId).Active = true;
+        UserList.get(ClientId).toDraw = true;
       } else {
         Random generator = new Random();
         boolean IdExistsFlag = true;
@@ -157,6 +157,7 @@ public class SocketServer extends Thread {
         ClientInfo newClient = new ClientInfo(ClientName, FolderPath);
         UserList.put(newId, newClient);
         UserList.get(newId).Active = true;
+        UserList.get(newId).toDraw = true;
         this.ClientId = newId;
 
         new File("/home/roczak/server/" + this.ClientId).mkdir();
@@ -168,6 +169,7 @@ public class SocketServer extends Thread {
     public int MessageHandler(Message request) throws IOException {
       if (request.LogoutFlag) {
         UserList.get(ClientId).Active = false;
+        UserList.get(ClientId).toRemove = true;
         stopConnection();
         return MessageHandlerReturn.STOP;
 
@@ -179,6 +181,8 @@ public class SocketServer extends Thread {
           ClientFileArr = (String[]) ObjectIn.readObject();
         } catch (IOException e) {
           UserList.get(ClientId).Active = false;
+          UserList.get(ClientId).toUpdate = false;
+          UserList.get(ClientId).toRemove = true;
           System.out.println(UserList.get(ClientId).Active);
           stopConnection();
           return MessageHandlerReturn.STOP;
@@ -210,8 +214,8 @@ public class SocketServer extends Thread {
             bos.flush();
             bos.close();
           }
+          UserList.get(ClientId).toUpdate = true;
         }
-
         return MessageHandlerReturn.CONTINUE;
 
       } else if (request.DownloadFilesFlag) {
@@ -223,6 +227,8 @@ public class SocketServer extends Thread {
         } catch (IOException e) {
           System.out.println(UserList.get(ClientId).ClientName + " left server");
           UserList.get(ClientId).Active = false;
+          UserList.get(ClientId).toUpdate = false;
+          UserList.get(ClientId).toRemove = true;
           stopConnection();
           return MessageHandlerReturn.STOP;
           // e.printStackTrace();
@@ -255,9 +261,10 @@ public class SocketServer extends Thread {
             bin.close();
           }
           ObjectOut.reset();
+          UserList.get(ClientId).toUpdate = true;
         }
-
         return MessageHandlerReturn.CONTINUE;
+
       } else if (request.DownloadClientListFlag) {
         List<String> ActiveUsersList = new ArrayList<>();
         for (int i : UserList.keySet()) {
@@ -294,7 +301,6 @@ public class SocketServer extends Thread {
         } catch (ClassNotFoundException e) {
           e.printStackTrace();
         }
-
         return MessageHandlerReturn.CONTINUE;
       }
       return MessageHandlerReturn.CONTINUE;

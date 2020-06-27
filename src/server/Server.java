@@ -17,6 +17,7 @@ public class Server extends Application {
     Scene scene = new Scene(root);
     MainServerController controller = loader.getController();
     controller.setStage(primaryStage);
+    controller.panesUpdater();
 
     primaryStage.setTitle("Server");
     primaryStage.setScene(scene);

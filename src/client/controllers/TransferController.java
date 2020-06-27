@@ -13,23 +13,23 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class TransferController {
-  private Path folderPath;
-  @FXML
-  private ListView<String> UserListView;
-  @FXML
-  Button transferButton;
-  @FXML
-  TextField clientnameTextField, fileTextField;
-  private AppController appController;
+    private Path folderPath;
+    @FXML
+    private ListView<String> UserListView;
+    @FXML
+    Button transferButton;
+    @FXML
+    TextField clientnameTextField, fileTextField;
+    private AppController appController;
 
-  @FXML
-  public void transferFile() {
-    String transferClientname = clientnameTextField.getText();
-    String filename = fileTextField.getText();
-    if (transferClientname.isEmpty() || !UserListView.getItems().contains(transferClientname)) {
-      System.out.println("Wrong username");
-      Stage stage = (Stage) transferButton.getScene().getWindow();
-      stage.close();
+    @FXML
+    public void transferFile() {
+        String transferClientname = clientnameTextField.getText();
+        String filename = fileTextField.getText();
+        if (transferClientname.isEmpty() || !UserListView.getItems().contains(transferClientname)) {
+            System.out.println("Wrong username");
+            Stage stage = (Stage) transferButton.getScene().getWindow();
+            stage.close();
       return;
     }
 

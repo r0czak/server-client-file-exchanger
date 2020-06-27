@@ -30,7 +30,6 @@ public class AppController {
   public String transferClientname;
   public String transferFilename;
 
-
   @FXML
   protected void initialize() {
     request = new Message();
