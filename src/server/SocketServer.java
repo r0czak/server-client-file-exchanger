@@ -180,10 +180,10 @@ public class SocketServer extends Thread {
         try {
           ClientFileArr = (String[]) ObjectIn.readObject();
         } catch (IOException e) {
+          System.out.println(UserList.get(ClientId).ClientName + " left server");
           UserList.get(ClientId).Active = false;
           UserList.get(ClientId).toUpdate = false;
           UserList.get(ClientId).toRemove = true;
-          System.out.println(UserList.get(ClientId).Active);
           stopConnection();
           return MessageHandlerReturn.STOP;
           // e.printStackTrace();
@@ -251,7 +251,7 @@ public class SocketServer extends Thread {
         if (ServerFileArr.length != 0) {
           for (int i = 0; i < ServerFileArr.length; i++) {
             File transferFile =
-                    new File("/home/roczak/server/" + ClientId + "/" + ClientFileArr[i]);
+                    new File("/home/roczak/server/" + ClientId + "/" + ServerFileArr[i]);
             byte[] byteArray = new byte[(int) transferFile.length()];
             FileInputStream fin = new FileInputStream(transferFile);
             BufferedInputStream bin = new BufferedInputStream(fin);
