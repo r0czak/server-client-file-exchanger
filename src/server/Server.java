@@ -7,12 +7,12 @@ import javafx.scene.control.Accordion;
 import javafx.stage.Stage;
 import server.controllers.MainServerController;
 
+/** Główna klasa, ktora ładuje plik fxml oraz uruchamia graficzny interfejs serwera. */
 public class Server extends Application {
-
   @Override
   public void start(Stage primaryStage) throws Exception {
     FXMLLoader loader =
-            new FXMLLoader(this.getClass().getResource("/resources/mainScreenServer.fxml"));
+        new FXMLLoader(this.getClass().getResource("/resources/mainScreenServer.fxml"));
     Accordion root = loader.load();
     Scene scene = new Scene(root);
     MainServerController controller = loader.getController();
@@ -23,7 +23,6 @@ public class Server extends Application {
     primaryStage.setScene(scene);
     primaryStage.show();
     controller.close();
-
   }
 
   public static void main(String[] args) {

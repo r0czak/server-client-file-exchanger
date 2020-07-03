@@ -16,7 +16,7 @@
             <children>
                 <Button fx:id="LogOutButton" layoutX="434.0" layoutY="499.0" mnemonicParsing="false" onAction="#logOut"
                         text="Log out"/>
-                <ListView fx:id="FileList" layoutX="28.0" layoutY="39.0" prefHeight="448.0" prefWidth="240.0"/>
+                <ListView fx:id="fileList" layoutX="28.0" layoutY="39.0" prefHeight="448.0" prefWidth="240.0"/>
                 <Button fx:id="transferFileButton" layoutX="100.0" layoutY="499.0" mnemonicParsing="false"
                         onAction="#transferEvent" text="Transfer file"/>
                 <Label layoutX="133.0" layoutY="14.0" text="Files"/>
@@ -24,7 +24,7 @@
         </AnchorPane>
         <AnchorPane minHeight="160.0" minWidth="100.0" prefHeight="160.0" prefWidth="100.0">
             <children>
-                <ListView fx:id="UserListView" layoutY="42.0" prefHeight="522.0" prefWidth="175.0"/>
+                <ListView fx:id="userListView" layoutY="42.0" prefHeight="522.0" prefWidth="175.0"/>
                 <Label layoutX="48.0" layoutY="14.0" text="Active users"/>
             </children>
         </AnchorPane>

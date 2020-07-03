@@ -1,7 +1,5 @@
 package client.controllers;
 
-import client.Message;
-import client.SocketClient;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
@@ -9,27 +7,24 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
+/** Klasa typu kontroler obsługująca okno przesyłania plików miedzy klientami */
 public class TransferController {
-    private Path folderPath;
-    @FXML
-    private ListView<String> UserListView;
-    @FXML
-    Button transferButton;
-    @FXML
-    TextField clientnameTextField, fileTextField;
-    private AppController appController;
+  private Path folderPath;
+  @FXML private ListView<String> userListView;
+  @FXML Button transferButton;
+  @FXML TextField clientnameTextField, fileTextField;
+  private AppController appController;
 
-    @FXML
-    public void transferFile() {
-        String transferClientname = clientnameTextField.getText();
-        String filename = fileTextField.getText();
-        if (transferClientname.isEmpty() || !UserListView.getItems().contains(transferClientname)) {
-            System.out.println("Wrong username");
-            Stage stage = (Stage) transferButton.getScene().getWindow();
-            stage.close();
+  @FXML
+  public void transferFile() {
+    String transferClientname = clientnameTextField.getText();
+    String filename = fileTextField.getText();
+    if (transferClientname.isEmpty() || !userListView.getItems().contains(transferClientname)) {
+      System.out.println("Wrong username");
+      Stage stage = (Stage) transferButton.getScene().getWindow();
+      stage.close();
       return;
     }
 
@@ -53,7 +48,7 @@ public class TransferController {
   }
 
   public void setUserListView(ListView<String> userListView) {
-    this.UserListView = userListView;
+    this.userListView = userListView;
   }
 
   public void setAppController(AppController appController) {

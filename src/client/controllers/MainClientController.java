@@ -8,22 +8,22 @@ import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
 
+/** Klasa typu kontroler. Nakłada Pane'y następnych okien aplikacji na StackPane */
 public class MainClientController {
-    @FXML
-    private StackPane mainStackPane;
+  @FXML private StackPane mainStackPane;
 
-    @FXML
-    public void initialize() {
-        FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/resources/loginPane.fxml"));
-        Pane loginPane = null;
-        try {
-            loginPane = loader.load();
-        } catch (IOException e) {
+  @FXML
+  public void initialize() {
+    FXMLLoader loader = new FXMLLoader(this.getClass().getResource("/resources/loginPane.fxml"));
+    Pane loginPane = null;
+    try {
+      loginPane = loader.load();
+    } catch (IOException e) {
       e.printStackTrace();
     }
     LoginController loginController = loader.getController();
-        loginController.setMainClientController(this);
-        setScreen(loginPane);
+    loginController.setMainClientController(this);
+    setScreen(loginPane);
   }
 
   public void setScreen(Pane pane) {

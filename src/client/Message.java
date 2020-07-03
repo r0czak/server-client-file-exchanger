@@ -2,38 +2,59 @@ package client;
 
 import java.io.Serializable;
 
+/**
+ * Klasa odpowiadająca za treść żądań wysyłanych z klienta do serwera. Posiada funkcje ustawiające
+ * za ustawianie flag
+ */
 public class Message implements Serializable {
-  public boolean LogoutFlag = false;
-  public boolean UploadFilesFlag = false;
-  public boolean DownloadFilesFlag = false;
-  public boolean DownloadClientListFlag = false;
-  public boolean TransferFileFlag = false;
+
+  /** flaga odpowiadająca za żądanie wylogowania się z serwera */
+  public boolean logoutFlag = false;
+  /** flaga odpowiadająca za żądanie wysłania plików z klienta na serwer */
+  public boolean uploadFilesFlag = false;
+
+  /** flaga odpowiadająca za żądanie pobrania plików z serwera do klienta */
+  public boolean downloadFilesFlag = false;
+
+  /** flaga odpowiadająca za żądanie pobrania listy aktywnych użytkowników z serwera */
+  public boolean downloadClientListFlag = false;
+
+  /** flaga odpowiadająca za żądanie przesłania pliku pomiędzy klientami */
+  public boolean transferFileFlag = false;
+
+  /** flaga odpowiadająca za powiadomienie u usunięciu pliku w folderze lokalnym */
+  public boolean deleteFileFlag = false;
 
   public synchronized void clear() {
-    LogoutFlag = false;
-    UploadFilesFlag = false;
-    DownloadFilesFlag = false;
-    DownloadClientListFlag = false;
-    TransferFileFlag = false;
+    logoutFlag = false;
+    uploadFilesFlag = false;
+    downloadFilesFlag = false;
+    downloadClientListFlag = false;
+    transferFileFlag = false;
+    deleteFileFlag = false;
   }
 
-  public synchronized void Logout() {
-    LogoutFlag = true;
+  public synchronized void logout() {
+    logoutFlag = true;
   }
 
-  public synchronized void UploadFiles() {
-    UploadFilesFlag = true;
+  public synchronized void uploadFiles() {
+    uploadFilesFlag = true;
   }
 
-  public synchronized void DownloadFiles() {
-    DownloadFilesFlag = true;
+  public synchronized void downloadFiles() {
+    downloadFilesFlag = true;
   }
 
-  public synchronized void DownloadClientList() {
-    DownloadClientListFlag = true;
+  public synchronized void downloadClientList() {
+    downloadClientListFlag = true;
   }
 
-  public synchronized void TransferFile() {
-    TransferFileFlag = true;
+  public synchronized void transferFile() {
+    transferFileFlag = true;
+  }
+
+  public synchronized void deleteFile() {
+    deleteFileFlag = true;
   }
 }

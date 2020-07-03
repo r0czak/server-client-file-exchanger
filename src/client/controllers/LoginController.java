@@ -11,12 +11,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/** Klasa typu kontroler obsługująca okno logowania na serwer */
 public class LoginController {
   private MainClientController mainClientController;
   public SocketClient socketClient;
 
-  @FXML
-  private TextField username, folderPath;
+  @FXML private TextField username, folderPath;
 
   @FXML
   protected void initialize() {
@@ -24,6 +24,7 @@ public class LoginController {
     setTextLimit(folderPath, 100);
   }
 
+  /** Funkcja wywoływana po wciśnięciu przycisku "Sign in" w oknie logowania */
   @FXML
   public void signIn() throws IOException, ClassNotFoundException {
 
@@ -53,14 +54,15 @@ public class LoginController {
     socketClient.startConnection("127.0.0.1", 6666);
     socketClient.sendString(getUsername());
     socketClient.sendString(getFolderPath());
-    if (!(boolean) socketClient.ObjectIn.readObject()) {
+    if (!(boolean) socketClient.objectIn.readObject()) {
       System.out.println("This User is active");
       return;
     }
 
+    // Inicjacja wątków głównego okna aplikacji
     appController.setClient(socketClient);
-    appController.Update();
-    appController.FileExchange();
+    appController.update();
+    appController.fileExchange();
 
     mainClientController.setScreen(appPane);
   }
@@ -77,15 +79,21 @@ public class LoginController {
     return folderPath.getText();
   }
 
+  /**
+   * Funkcja ustawiająca limit tekstu dla TextField
+   *
+   * @param textField TextField dla którego ustawiany będzie limit
+   * @param length Maksymalna liczba liter
+   */
   public static void setTextLimit(TextField textField, int length) {
     textField.setOnKeyTyped(
-            event -> {
-              String string = textField.getText();
+        event -> {
+          String string = textField.getText();
 
-              if (string.length() > length) {
-                textField.setText(string.substring(0, length));
-                textField.positionCaret(string.length());
-              }
-            });
+          if (string.length() > length) {
+            textField.setText(string.substring(0, length));
+            textField.positionCaret(string.length());
+          }
+        });
   }
 }

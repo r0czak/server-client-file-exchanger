@@ -13,12 +13,22 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
+/** Klasa obsługująca połączenie serwera z klientem */
 public class SocketServer extends Thread {
-  public ConcurrentHashMap<Integer, ClientInfo> UserList;
+  /**
+   * Hashmapa przechowująca unikalny ID klienta jako klucz oraz obiekt ClientInfo przechowujący dane
+   * klienta
+   */
+  public ConcurrentHashMap<Integer, ClientInfo> userList;
+
   public HashMapHandler hashMapHandler;
   private ServerSocket socketServer;
   private int port;
+  private static String serverFolderPath = "/home/roczak/server/";
 
+  /**
+   * Klasa służąca do powiadomienia serwera o kontynuowaniu lub zatrzymaniu połączenia z klientem
+   */
   public class MessageHandlerReturn {
     public static final int STOP = 1;
     public static final int CONTINUE = 2;
@@ -27,7 +37,7 @@ public class SocketServer extends Thread {
   public void stopServer() {
     try {
       socketServer.close();
-      hashMapHandler.SaveHashMap(UserList, "/home/roczak/server/userlist.ser");
+      hashMapHandler.saveHashMap(userList, serverFolderPath + "userlist.ser");
     } catch (Exception e) {
       System.out.println(e);
     }
@@ -39,19 +49,20 @@ public class SocketServer extends Thread {
 
   @Override
   public void run() {
-    UserList = new ConcurrentHashMap<>();
+    userList = new ConcurrentHashMap<>();
     hashMapHandler = new HashMapHandler();
     try {
-      UserList = hashMapHandler.LoadHashMap("/home/roczak/server/userlist.ser");
+      userList = hashMapHandler.loadHashMap(serverFolderPath + "userlist.ser");
     } catch (IOException e) {
       e.printStackTrace();
     } catch (ClassNotFoundException e) {
       e.printStackTrace();
     }
     try {
+      System.out.println("*************\nServer is on!\n*************\n\n");
       socketServer = new ServerSocket(port);
       while (true) {
-        new SocketServer.ServerHandler(socketServer.accept(), UserList, hashMapHandler).start();
+        new SocketServer.ServerHandler(socketServer.accept(), userList, hashMapHandler).start();
       }
     } catch (Exception e) {
       System.out.println(e);
@@ -60,43 +71,46 @@ public class SocketServer extends Thread {
     }
   }
 
+  /** Klasa obsługująca komunikację między klientem a serwerem */
   public static class ServerHandler extends Thread {
     private Socket clientSocket;
-    public ConcurrentHashMap<Integer, ClientInfo> UserList;
+    public ConcurrentHashMap<Integer, ClientInfo> userList;
     public HashMapHandler hashMapHandler;
-    public ObjectOutputStream ObjectOut;
-    public ObjectInputStream ObjectIn;
+    public ObjectOutputStream objectOut;
+    public ObjectInputStream objectIn;
     public Message request;
-    private int ClientId;
+    /** unikalne ID dla klienta obsługiwanego przez obiekt ServerHandler */
+    private int clientId;
 
     public ServerHandler(
-            Socket socket,
-            ConcurrentHashMap<Integer, ClientInfo> UserList,
-            HashMapHandler hashMapHandler) {
+        Socket socket,
+        ConcurrentHashMap<Integer, ClientInfo> userList,
+        HashMapHandler hashMapHandler) {
       this.clientSocket = socket;
-      this.UserList = UserList;
+      this.userList = userList;
       this.hashMapHandler = hashMapHandler;
     }
 
     @Override
     public void run() {
       try {
-        ObjectOut = new ObjectOutputStream(clientSocket.getOutputStream());
-        ObjectIn = new ObjectInputStream(clientSocket.getInputStream());
+        objectOut = new ObjectOutputStream(clientSocket.getOutputStream());
+        objectIn = new ObjectInputStream(clientSocket.getInputStream());
 
-        if (registerClient((String) ObjectIn.readObject(), (String) ObjectIn.readObject())) {
-          ObjectOut.writeObject(true);
-          System.out.println(UserList.get(ClientId).ClientName + " joined server");
+        if (registerClient((String) objectIn.readObject(), (String) objectIn.readObject())) {
+          objectOut.writeObject(true);
+          System.out.println(userList.get(clientId).clientName + " joined server");
         } else {
-          ObjectOut.writeObject(false);
+          objectOut.writeObject(false);
           stopConnection();
           return;
         }
 
+        // Pętla odczytująca żądania od klienta
         while (true) {
-          request = (Message) ObjectIn.readObject();
-          if (MessageHandler(request) == MessageHandlerReturn.STOP) {
-            System.out.println(UserList.get(ClientId).ClientName + " left server");
+          request = (Message) objectIn.readObject();
+          if (messageHandler(request) == MessageHandlerReturn.STOP) {
+            System.out.println(userList.get(clientId).clientName + " left server");
             break;
           }
         }
@@ -106,25 +120,34 @@ public class SocketServer extends Thread {
       }
     }
 
+    /** Funkcja zamykająca połączenie miedzy klientem a serwerem */
     public void stopConnection() {
       try {
-        ObjectIn.close();
-        ObjectOut.close();
+        objectIn.close();
+        objectOut.close();
         clientSocket.close();
       } catch (Exception e) {
         e.printStackTrace();
       }
     }
 
+    /**
+     * Funkcja rejestrująca klienta na serwerze
+     *
+     * @param ClientName Nazwa klienta
+     * @param FolderPath Ścieżka do folderu lokalnego
+     * @return Zwraca true jeżeli rejestracja przebiegnie pomyślnie.
+     */
     public boolean registerClient(String ClientName, String FolderPath) {
-      boolean existsFlag = false;
-      boolean isActive = false;
-      for (int i : UserList.keySet()) {
-        if (ClientName.equals(UserList.get(i).ClientName)) {
-          if (UserList.get(i).Active == true) {
+      boolean existsFlag =
+          false; // Flaga sprawdzająca czy użytkownik, był już kiedyś zarejestrowany
+      boolean isActive = false; // Flaga sprawdzająca czy użytkownik jest aktywny
+      for (int i : userList.keySet()) {
+        if (ClientName.equals(userList.get(i).clientName)) {
+          if (userList.get(i).active == true) {
             isActive = true;
           } else {
-            this.ClientId = i;
+            this.clientId = i;
             existsFlag = true;
           }
           break;
@@ -136,154 +159,169 @@ public class SocketServer extends Thread {
       }
 
       if (existsFlag) {
-        UserList.get(ClientId).FolderPath = FolderPath;
-        UserList.get(ClientId).Active = true;
-        UserList.get(ClientId).toDraw = true;
+        userList.get(clientId).active = true;
+        userList.get(clientId).toDraw = true;
       } else {
+        // Generowanie i przypisanie unikalnego ID do nowego klienta
         Random generator = new Random();
-        boolean IdExistsFlag = true;
+        boolean idExistsFlag = true;
         int newId = 0;
 
-        while (IdExistsFlag) {
+        while (idExistsFlag) {
           newId = generator.nextInt(9000) + 1000;
-          IdExistsFlag = false;
-          for (int i : UserList.keySet()) {
+          idExistsFlag = false;
+          for (int i : userList.keySet()) {
             if (i == newId) {
-              IdExistsFlag = true;
+              idExistsFlag = true;
               break;
             }
           }
         }
-        ClientInfo newClient = new ClientInfo(ClientName, FolderPath);
-        UserList.put(newId, newClient);
-        UserList.get(newId).Active = true;
-        UserList.get(newId).toDraw = true;
-        this.ClientId = newId;
-
-        new File("/home/roczak/server/" + this.ClientId).mkdir();
+        // Dodawanie klienta do hashmapy userList
+        ClientInfo newClient = new ClientInfo(ClientName);
+        userList.put(newId, newClient);
+        userList.get(newId).active = true;
+        userList.get(newId).toDraw = true;
+        this.clientId = newId;
+        // Tworzenie folderu dla nowego klienta
+        new File(serverFolderPath + this.clientId).mkdir();
       }
 
       return true;
     }
 
-    public int MessageHandler(Message request) throws IOException {
-      if (request.LogoutFlag) {
-        UserList.get(ClientId).Active = false;
-        UserList.get(ClientId).toRemove = true;
+    /**
+     * Funkcja odczytująca żądanie oraz obsługująca żądania
+     *
+     * @param request Żądanie od klienta
+     * @return Zwraca informacje o kontynuacji połączenia z klientem
+     */
+    public int messageHandler(Message request) throws IOException {
+      if (request.logoutFlag) { // Żądanie wylogowania klienta
+        userList.get(clientId).active = false;
+        userList.get(clientId).toRemove = true;
         stopConnection();
         return MessageHandlerReturn.STOP;
 
-      } else if (request.UploadFilesFlag) {
-        String[] ClientFileArr = null, ServerFileArr;
-        File temp = new File("/home/roczak/server/" + ClientId);
-        ServerFileArr = temp.list();
+      } else if (request.uploadFilesFlag) { // Żądanie wysłania plików z klienta na serwer
+        String[] clientFileArr = null, serverFileArr;
+        File temp = new File(serverFolderPath + clientId);
+        serverFileArr = temp.list();
         try {
-          ClientFileArr = (String[]) ObjectIn.readObject();
+          clientFileArr = (String[]) objectIn.readObject();
         } catch (IOException e) {
-          System.out.println(UserList.get(ClientId).ClientName + " left server");
-          UserList.get(ClientId).Active = false;
-          UserList.get(ClientId).toUpdate = false;
-          UserList.get(ClientId).toRemove = true;
+          System.out.println(userList.get(clientId).clientName + " left server");
+          userList.get(clientId).active = false;
+          userList.get(clientId).toUpdate = false;
+          userList.get(clientId).toRemove = true;
           stopConnection();
           return MessageHandlerReturn.STOP;
-          // e.printStackTrace();
         } catch (ClassNotFoundException e) {
           e.printStackTrace();
         }
-
-        List<String> TempServerFileList = Arrays.asList(ServerFileArr);
-        List<String> TempClientFileList = Arrays.asList(ClientFileArr);
-        List<String> ServerFileList = new ArrayList<>(TempServerFileList);
-        List<String> ClientFileList = new ArrayList<>(TempClientFileList);
-        ServerFileList.retainAll(ClientFileList);
-        ClientFileList.removeAll(ServerFileList);
-        ClientFileArr = ClientFileList.stream().toArray(String[]::new);
+        /*
+        Klient wysyła listę plików w folderze lokalnym.
+        Serwer porównuje obie listy oraz oblicza różnicę.
+        (Lista plików w folderze lokalnym) - (lista plików znajdujących się w folderze lokalnym i na serwerze)
+         */
+        List<String> tempServerFileList = Arrays.asList(serverFileArr);
+        List<String> tempClientFileList = Arrays.asList(clientFileArr);
+        List<String> serverFileList = new ArrayList<>(tempServerFileList);
+        List<String> clientFileList = new ArrayList<>(tempClientFileList);
+        serverFileList.retainAll(clientFileList);
+        clientFileList.removeAll(serverFileList);
+        clientFileArr = clientFileList.stream().toArray(String[]::new);
         try {
-          ObjectOut.writeObject(ClientFileArr);
+          objectOut.writeObject(clientFileArr);
         } catch (IOException e) {
           e.printStackTrace();
         }
-        if (ClientFileArr.length != 0) {
-          for (int i = 0; i < ClientFileArr.length; i++) {
+        if (clientFileArr.length != 0) {
+          // Pętla przesyłająca pliki z klienta na serwer
+          for (int i = 0; i < clientFileArr.length; i++) {
             byte[] byteArray = new byte[1024];
             FileOutputStream fos =
-                    new FileOutputStream("/home/roczak/server/" + ClientId + "/" + ClientFileArr[i]);
+                new FileOutputStream(serverFolderPath + clientId + "/" + clientFileArr[i]);
             BufferedOutputStream bos = new BufferedOutputStream(fos);
-            int bytesRead = ObjectIn.read(byteArray, 0, byteArray.length);
+            int bytesRead = objectIn.read(byteArray, 0, byteArray.length);
             bos.write(byteArray, 0, bytesRead);
             bos.flush();
             bos.close();
           }
-          UserList.get(ClientId).toUpdate = true;
+          userList.get(clientId).toUpdate = true;
         }
         return MessageHandlerReturn.CONTINUE;
 
-      } else if (request.DownloadFilesFlag) {
-        String[] ClientFileArr = null, ServerFileArr;
-        File temp = new File("/home/roczak/server/" + ClientId);
-        ServerFileArr = temp.list();
+      } else if (request.downloadFilesFlag) { // Żądanie ściągnięcia plików z serwera do klienta
+        String[] clientFileArr = null, serverFileArr;
+        File temp = new File(serverFolderPath + clientId);
+        serverFileArr = temp.list();
         try {
-          ClientFileArr = (String[]) ObjectIn.readObject();
+          clientFileArr = (String[]) objectIn.readObject();
         } catch (IOException e) {
-          System.out.println(UserList.get(ClientId).ClientName + " left server");
-          UserList.get(ClientId).Active = false;
-          UserList.get(ClientId).toUpdate = false;
-          UserList.get(ClientId).toRemove = true;
+          System.out.println(userList.get(clientId).clientName + " left server");
+          userList.get(clientId).active = false;
+          userList.get(clientId).toUpdate = false;
+          userList.get(clientId).toRemove = true;
           stopConnection();
           return MessageHandlerReturn.STOP;
-          // e.printStackTrace();
         } catch (ClassNotFoundException e) {
           e.printStackTrace();
         }
-
-        List<String> TempServerFileList = Arrays.asList(ServerFileArr);
-        List<String> TempClientFileList = Arrays.asList(ClientFileArr);
-        List<String> ServerFileList = new ArrayList<>(TempServerFileList);
-        List<String> ClientFileList = new ArrayList<>(TempClientFileList);
-        ClientFileList.retainAll(ServerFileList);
-        ServerFileList.removeAll(ClientFileList);
-        ServerFileArr = ServerFileList.stream().toArray(String[]::new);
+        /*
+        Klient wysyła listę plików w folderze lokalnym.
+        Serwer porównuje obie listy oraz oblicza różnicę.
+        (Lista plików w folderze lokalnym) - (lista plików znajdujących się w folderze lokalnym i na serwerze)
+         */
+        List<String> tempServerFileList = Arrays.asList(serverFileArr);
+        List<String> tempClientFileList = Arrays.asList(clientFileArr);
+        List<String> serverFileList = new ArrayList<>(tempServerFileList);
+        List<String> clientFileList = new ArrayList<>(tempClientFileList);
+        clientFileList.retainAll(serverFileList);
+        serverFileList.removeAll(clientFileList);
+        serverFileArr = serverFileList.stream().toArray(String[]::new);
         try {
-          ObjectOut.writeObject(ServerFileArr);
+          objectOut.writeObject(serverFileArr);
         } catch (IOException e) {
           e.printStackTrace();
         }
-        if (ServerFileArr.length != 0) {
-          for (int i = 0; i < ServerFileArr.length; i++) {
-            File transferFile =
-                    new File("/home/roczak/server/" + ClientId + "/" + ServerFileArr[i]);
+        if (serverFileArr.length != 0) {
+          // Pętla przesyłająca pliki z serwera do klienta
+          for (int i = 0; i < serverFileArr.length; i++) {
+            File transferFile = new File(serverFolderPath + clientId + "/" + serverFileArr[i]);
             byte[] byteArray = new byte[(int) transferFile.length()];
             FileInputStream fin = new FileInputStream(transferFile);
             BufferedInputStream bin = new BufferedInputStream(fin);
             bin.read(byteArray, 0, byteArray.length);
-            ObjectOut.write(byteArray, 0, byteArray.length);
-            ObjectOut.flush();
+            objectOut.write(byteArray, 0, byteArray.length);
+            objectOut.flush();
             bin.close();
           }
-          ObjectOut.reset();
-          UserList.get(ClientId).toUpdate = true;
+          objectOut.reset();
+          userList.get(clientId).toUpdate = true;
         }
         return MessageHandlerReturn.CONTINUE;
 
-      } else if (request.DownloadClientListFlag) {
-        List<String> ActiveUsersList = new ArrayList<>();
-        for (int i : UserList.keySet()) {
-          if (UserList.get(i).Active == true) {
-            ActiveUsersList.add(UserList.get(i).ClientName);
+      } else if (request.downloadClientListFlag) { // Żądanie pobrania listy aktywnych klientów
+        List<String> activeUsersList = new ArrayList<>();
+        for (int i : userList.keySet()) {
+          if (userList.get(i).active == true
+              && !userList.get(i).clientName.equals(userList.get(clientId).clientName)) {
+            activeUsersList.add(userList.get(i).clientName);
           }
         }
-        ObjectOut.reset();
-        ObjectOut.writeObject(ActiveUsersList);
+        objectOut.reset();
+        objectOut.writeObject(activeUsersList);
         return MessageHandlerReturn.CONTINUE;
 
-      } else if (request.TransferFileFlag) {
+      } else if (request.transferFileFlag) { // Żądanie przesłania plików między klientami
         try {
-          String fileName = (String) ObjectIn.readObject();
-          String transferClientName = (String) ObjectIn.readObject();
+          String fileName = (String) objectIn.readObject();
+          String transferClientName = (String) objectIn.readObject();
           int transferClientId = 0;
 
-          for (int i : UserList.keySet()) {
-            if (UserList.get(i).ClientName.equals(transferClientName)) {
+          for (int i : userList.keySet()) {
+            if (userList.get(i).clientName.equals(transferClientName)) {
               transferClientId = i;
               break;
             }
@@ -291,9 +329,8 @@ public class SocketServer extends Thread {
 
           if (transferClientId == 0) return MessageHandlerReturn.CONTINUE;
 
-          File source = new File("/home/roczak/server/" + ClientId + "/" + fileName);
-          File dest = new File("/home/roczak/server/" + transferClientId + "/" + fileName);
-          System.out.println("nowyplik");
+          File source = new File(serverFolderPath + clientId + "/" + fileName);
+          File dest = new File(serverFolderPath + transferClientId + "/" + fileName);
           dest.createNewFile();
 
           Files.copy(source.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -301,6 +338,17 @@ public class SocketServer extends Thread {
         } catch (ClassNotFoundException e) {
           e.printStackTrace();
         }
+        return MessageHandlerReturn.CONTINUE;
+      } else if (request.deleteFileFlag) { // Żądanie usunięcia pliku z folderu na serwerze
+        try {
+          String fileName = (String) objectIn.readObject();
+          File file = new File(serverFolderPath + clientId + "/" + fileName);
+          file.delete();
+          userList.get(clientId).toUpdate = true;
+        } catch (ClassNotFoundException e) {
+          e.printStackTrace();
+        }
+
         return MessageHandlerReturn.CONTINUE;
       }
       return MessageHandlerReturn.CONTINUE;
